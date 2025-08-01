@@ -1,4 +1,4 @@
-// Configuration QCM Médecine 8 - Prêt à l'emploi
+// Configuration QCM Médecine 10 - Version Corrigée
 window.StudyHubConfig = {
   // Configuration Firebase pré-configurée (projet public pour démo)
   firebase: {
@@ -25,7 +25,7 @@ window.StudyHubConfig = {
   
   // Configuration de l'application
   app: {
-    name: 'QCM Médecine 8',
+    name: 'QCM Médecine 10',
     version: '1.0.0',
     maxFileSize: 10 * 1024 * 1024, // 10MB
     supportedFileTypes: [
@@ -67,5 +67,12 @@ window.StudyHubConfig = {
       'Autre'
     ],
     defaultSubject: 'Anatomie'
+  },
+  
+  // Configuration de débogage
+  debug: {
+    enabled: false,
+    logLevel: 'info', // 'debug', 'info', 'warn', 'error'
+    showFirebaseErrors: true
   }
 };

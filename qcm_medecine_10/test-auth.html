@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Authentification - QCM Médecine 10</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .test-section {
+      margin: 20px 0;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .info { color: blue; }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .log {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 10px 0;
+      font-family: monospace;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🧪 Test Authentification - QCM Médecine 10</h1>
+    <p>Ce fichier teste la configuration Firebase et l'authentification.</p>
+    
+    <div class="test-section">
+      <h2>1. Test Configuration Firebase</h2>
+      <button onclick="testFirebaseConfig()">Tester la Configuration</button>
+      <div id="config-result" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+      <h2>2. Test Initialisation Firebase</h2>
+      <button onclick="testFirebaseInit()">Tester l'Initialisation</button>
+      <div id="init-result" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+      <h2>3. Test Authentification</h2>
+      <button onclick="testAuth()">Tester l'Authentification</button>
+      <div id="auth-result" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+      <h2>4. Test Connexion Google</h2>
+      <button onclick="testGoogleAuth()">Tester Google Auth</button>
+      <div id="google-result" class="log"></div>
+    </div>
+    
+    <div class="test-section">
+      <h2>5. Résultats des Tests</h2>
+      <div id="test-summary"></div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    
+    // Configuration Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxGQoM3Qj8X9X9X9X9X9X9X9X9X9X9X9X9X",
+      authDomain: "qcm-medecine-demo.firebaseapp.com",
+      projectId: "qcm-medecine-demo",
+      storageBucket: "qcm-medecine-demo.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:abcdefghijklmnopqrstuvwxyz"
+    };
+    
+    let app, auth;
+    
+    // Fonctions de test
+    window.testFirebaseConfig = function() {
+      const result = document.getElementById('config-result');
+      result.innerHTML = 'Configuration Firebase :\n';
+      result.innerHTML += JSON.stringify(firebaseConfig, null, 2);
+      result.innerHTML += '\n\n✅ Configuration chargée avec succès';
+    };
+    
+    window.testFirebaseInit = async function() {
+      const result = document.getElementById('init-result');
+      result.innerHTML = 'Initialisation Firebase...\n';
+      
+      try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        
+        result.innerHTML += '✅ Firebase initialisé avec succès\n';
+        result.innerHTML += `App: ${app.name}\n`;
+        result.innerHTML += `Auth: ${auth ? 'Disponible' : 'Non disponible'}\n`;
+        
+        // Écouter les changements d'état
+        auth.onAuthStateChanged((user) => {
+          result.innerHTML += `\n🔄 État d'authentification changé: ${user ? user.email : 'Déconnecté'}`;
+        });
+        
+      } catch (error) {
+        result.innerHTML += `❌ Erreur d'initialisation: ${error.message}\n`;
+        result.innerHTML += `Code: ${error.code}\n`;
+      }
+    };
+    
+    window.testAuth = async function() {
+      const result = document.getElementById('auth-result');
+      result.innerHTML = 'Test d\'authentification...\n';
+      
+      if (!auth) {
+        result.innerHTML += '❌ Firebase non initialisé\n';
+        return;
+      }
+      
+      try {
+        // Test avec des identifiants factices
+        const testEmail = 'test@example.com';
+        const testPassword = 'testpassword123';
+        
+        result.innerHTML += `Tentative de connexion avec: ${testEmail}\n`;
+        
+        // Note: Ceci échouera car les identifiants sont factices
+        // mais cela teste que la fonction est disponible
+        const userCredential = await signInWithEmailAndPassword(auth, testEmail, testPassword);
+        result.innerHTML += '✅ Connexion réussie\n';
+        
+      } catch (error) {
+        result.innerHTML += `❌ Erreur d'authentification (attendu): ${error.message}\n`;
+        result.innerHTML += `Code: ${error.code}\n`;
+        
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+          result.innerHTML += '✅ La fonction d\'authentification fonctionne correctement\n';
+        }
+      }
+    };
+    
+    window.testGoogleAuth = async function() {
+      const result = document.getElementById('google-result');
+      result.innerHTML = 'Test d\'authentification Google...\n';
+      
+      if (!auth) {
+        result.innerHTML += '❌ Firebase non initialisé\n';
+        return;
+      }
+      
+      try {
+        const provider = new GoogleAuthProvider();
+        provider.addScope('email');
+        provider.addScope('profile');
+        
+        result.innerHTML += 'Configuration du provider Google...\n';
+        result.innerHTML += '✅ Provider Google configuré\n';
+        result.innerHTML += 'Note: La popup Google ne s\'ouvrira pas automatiquement pour des raisons de sécurité\n';
+        
+      } catch (error) {
+        result.innerHTML += `❌ Erreur Google Auth: ${error.message}\n`;
+      }
+    };
+    
+    // Test automatique au chargement
+    window.addEventListener('load', function() {
+      const summary = document.getElementById('test-summary');
+      summary.innerHTML = '🚀 Tests prêts à être exécutés\n';
+      summary.innerHTML += 'Cliquez sur les boutons ci-dessus pour tester chaque fonctionnalité\n';
+    });
+  </script>
+</body>
+</html>
