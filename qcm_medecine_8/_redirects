@@ -1,0 +1,16 @@
+# Redirections pour QCM Médecine 8
+# Ce fichier permet à Netlify de gérer les routes SPA correctement
+
+# Rediriger toutes les routes vers index.html pour le SPA
+/*    /index.html   200
+
+# Redirections spécifiques pour les pages
+/import    /index.html   200
+/flashcards    /index.html   200
+/qcm    /index.html   200
+/resumes    /index.html   200
+/ai-chat    /index.html   200
+/statistics    /index.html   200
+
+# Gestion des erreurs 404
+/404    /index.html   404
