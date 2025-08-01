@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QCM Médecine 8 - Plateforme de Révision Intelligente</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+    import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
+    import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+    import { getStorage } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js';
+    
+    // Configuration Firebase depuis le fichier de configuration
+    const firebaseConfig = window.StudyHubConfig?.firebase || {
+      apiKey: "AIzaSyC2X9X9X9X9X9X9X9X9X9X9X9X9X9X9X9X",
+      authDomain: "qcm-medecine-8.firebaseapp.com",
+      projectId: "qcm-medecine-8",
+      storageBucket: "qcm-medecine-8.appspot.com",
+      messagingSenderId: "123456789012",
+      appId: "1:123456789012:web:abcdefghijklmnop"
+    };
+    
+    // Initialiser Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    
+    // Rendre Firebase disponible globalement
+    window.Firebase = { auth, db, storage };
+  </script>
+  
+  <!-- PDF.js pour l'extraction de texte -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+  <div class="theme-toggle">
+    <button id="theme-switch" aria-label="Changer de thème">
+      <i class="fas fa-sun"></i>
+    </button>
+  </div>
+
+  <!-- Système d'authentification -->
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-modal">
+      <div class="auth-header">
+        <img src="assets/logo.png" alt="QCM Médecine 8" class="auth-logo">
+        <h2>QCM Médecine 8</h2>
+        <p>Plateforme de révision intelligente pour étudiants en médecine</p>
+      </div>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Connexion</button>
+        <button class="auth-tab" data-tab="register">Inscription</button>
+      </div>
+      
+      <!-- Formulaire de connexion -->
+      <form id="login-form" class="auth-form active">
+        <h3>Connexion</h3>
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Mot de passe</label>
+          <input type="password" id="login-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Se connecter</button>
+        <button type="button" class="btn btn-google">
+          <i class="fab fa-google"></i> Continuer avec Google
+        </button>
+        <div class="form-footer">
+          <a href="#" id="forgot-password-link">Mot de passe oublié ?</a>
+        </div>
+      </form>
+      
+      <!-- Formulaire d'inscription -->
+      <form id="register-form" class="auth-form">
+        <h3>Inscription</h3>
+        <div class="form-group">
+          <label for="register-name">Nom complet</label>
+          <input type="text" id="register-name" required>
+        </div>
+        <div class="form-group">
+          <label for="register-email">Email</label>
+          <input type="email" id="register-email" required>
+        </div>
+        <div class="form-group">
+          <label for="register-password">Mot de passe</label>
+          <input type="password" id="register-password" required>
+        </div>
+        <div class="form-group">
+          <label for="register-confirm-password">Confirmer le mot de passe</label>
+          <input type="password" id="register-confirm-password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">S'inscrire</button>
+        <button type="button" class="btn btn-google">
+          <i class="fab fa-google"></i> Continuer avec Google
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Interface principale -->
+  <div id="main-app" class="main-app" style="display: none;">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-content">
+        <div class="logo-section">
+          <img src="assets/logo.png" alt="QCM Médecine 8" class="logo">
+          <h1>QCM Médecine 8</h1>
+        </div>
+        <nav class="main-nav">
+          <button class="nav-btn active" data-page="dashboard">
+            <i class="fas fa-home"></i>
+            <span>Accueil</span>
+          </button>
+          <button class="nav-btn" data-page="import">
+            <i class="fas fa-upload"></i>
+            <span>Importer</span>
+          </button>
+          <button class="nav-btn" data-page="qcm">
+            <i class="fas fa-question-circle"></i>
+            <span>QCM</span>
+          </button>
+          <button class="nav-btn" data-page="flashcards">
+            <i class="fas fa-layer-group"></i>
+            <span>Flashcards</span>
+          </button>
+          <button class="nav-btn" data-page="resumes">
+            <i class="fas fa-file-alt"></i>
+            <span>Résumés</span>
+          </button>
+          <button class="nav-btn" data-page="ai-chat">
+            <i class="fas fa-robot"></i>
+            <span>IA Assistant</span>
+          </button>
+          <button class="nav-btn" data-page="statistics">
+            <i class="fas fa-chart-bar"></i>
+            <span>Statistiques</span>
+          </button>
+        </nav>
+        <div class="user-section">
+          <div class="user-info">
+            <span id="user-name">Étudiant</span>
+            <span id="user-email">email@example.com</span>
+          </div>
+          <button id="logout-btn" class="btn btn-secondary">
+            <i class="fas fa-sign-out-alt"></i>
+            Déconnexion
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+      <!-- Dashboard -->
+      <div id="dashboard-page" class="page active">
+        <div class="dashboard-header">
+          <h2>Bienvenue sur QCM Médecine 8</h2>
+          <p>Votre plateforme de révision intelligente pour réussir vos études de médecine</p>
+        </div>
+        
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <div class="card-icon">
+              <i class="fas fa-upload"></i>
+            </div>
+            <h3>Importer vos cours</h3>
+            <p>Importez vos PDF de cours et générez automatiquement des QCM, flashcards et résumés</p>
+            <button class="btn btn-primary" onclick="navigateToPage('import')">
+              Commencer
+            </button>
+          </div>
+          
+          <div class="dashboard-card">
+            <div class="card-icon">
+              <i class="fas fa-question-circle"></i>
+            </div>
+            <h3>Réviser avec les QCM</h3>
+            <p>Testez vos connaissances avec des QCM générés automatiquement à partir de vos cours</p>
+            <button class="btn btn-primary" onclick="navigateToPage('qcm')">
+              Commencer
+            </button>
+          </div>
+          
+          <div class="dashboard-card">
+            <div class="card-icon">
+              <i class="fas fa-layer-group"></i>
+            </div>
+            <h3>Flashcards interactives</h3>
+            <p>Mémorisez efficacement avec des flashcards personnalisées selon vos cours</p>
+            <button class="btn btn-primary" onclick="navigateToPage('flashcards')">
+              Commencer
+            </button>
+          </div>
+          
+          <div class="dashboard-card">
+            <div class="card-icon">
+              <i class="fas fa-robot"></i>
+            </div>
+            <h3>Assistant IA</h3>
+            <p>Posez vos questions à l'IA qui analyse vos cours pour vous répondre</p>
+            <button class="btn btn-primary" onclick="navigateToPage('ai-chat')">
+              Commencer
+            </button>
+          </div>
+        </div>
+        
+        <div class="quick-stats">
+          <div class="stat-card">
+            <h4>Documents importés</h4>
+            <span id="documents-count">0</span>
+          </div>
+          <div class="stat-card">
+            <h4>QCM créés</h4>
+            <span id="qcm-count">0</span>
+          </div>
+          <div class="stat-card">
+            <h4>Flashcards</h4>
+            <span id="flashcards-count">0</span>
+          </div>
+          <div class="stat-card">
+            <h4>Score moyen</h4>
+            <span id="average-score">0%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Autres pages -->
+      <div id="import-page" class="page"></div>
+      <div id="qcm-page" class="page"></div>
+      <div id="flashcards-page" class="page"></div>
+      <div id="resumes-page" class="page"></div>
+      <div id="ai-chat-page" class="page"></div>
+      <div id="statistics-page" class="page"></div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="config.js"></script>
+  <script src="scripts/ai-service.js"></script>
+  <script src="scripts/auth.js"></script>
+  <script src="scripts/main.js"></script>
+  <script src="scripts/import.js"></script>
+  <script src="scripts/qcm.js"></script>
+  <script src="scripts/flashcards.js"></script>
+  <script src="scripts/resumes.js"></script>
+  <script src="scripts/ai-chat.js"></script>
+  <script src="scripts/statistics.js"></script>
+  <script src="scripts/notification-manager.js"></script>
+  <script src="scripts/cloud-sync.js"></script>
+  <script src="scripts/document-processor.js"></script>
+</body>
+</html>
